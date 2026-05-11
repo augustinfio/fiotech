@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FIOTECH - Equipements Informatiques</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #050810;
+      --bg2:       #090d1a;
+      --bg3:       #0d1226;
+      --card:      #0f1530;
+      --border:    #1a2448;
+      --accent:    #00d4ff;
+      --accent2:   #7b2fff;
+      --accent3:   #ff3e6c;
+      --text:      #e8eeff;
+      --muted:     #5a6a99;
+      --glow:      0 0 30px rgba(0,212,255,0.25);
+      --glow2:     0 0 40px rgba(123,47,255,0.3);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CUSTOM CURSOR */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+      box-shadow: 0 0 15px var(--accent);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(0,212,255,0.5);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform 0.18s ease, width 0.25s, height 0.25s;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.4;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      padding: 0 5%;
+      height: 70px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,16,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(5,8,16,0.97);
+      box-shadow: 0 4px 40px rgba(0,212,255,0.07);
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.6rem;
+      letter-spacing: 4px;
+      text-decoration: none;
+      position: relative;
+      display: inline-block;
+    }
+    .logo span:first-child { color: var(--text); }
+    .logo span.accent { color: var(--accent); }
+    .logo::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none; align-items: center;
+    }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem; letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .nav-links a::before {
+      content: '//';
+      color: var(--accent);
+      margin-right: 5px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::before { opacity: 1; }
+
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent) !important;
+      padding: 8px 20px;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.75rem !important;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s !important;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+    .nav-cta:hover {
+      background: var(--accent) !important;
+      color: var(--bg) !important;
+      box-shadow: var(--glow) !important;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 5px;
+    }
+    .hamburger span {
+      display: block; width: 25px; height: 2px;
+      background: var(--accent); transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── HERO ──────────────────────────────── */
+    #accueil {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 0 8% 0 8%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridShift 20s linear infinite;
+    }
+    @keyframes gridShift {
+      0% { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    .hero-circle {
+      position: absolute;
+      right: -100px; top: 50%;
+      transform: translateY(-50%);
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(123,47,255,0.12) 0%, rgba(0,212,255,0.06) 40%, transparent 70%);
+      animation: pulse 6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.8; }
+      50%       { transform: translateY(-50%) scale(1.05); opacity: 1; }
+    }
+
+    .hero-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 3px;
+      color: var(--accent);
+      background: rgba(0,212,255,0.07);
+      border: 1px solid rgba(0,212,255,0.25);
+      padding: 6px 16px;
+      margin-bottom: 2rem;
+      display: inline-flex; align-items: center; gap: 8px;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+      animation: fadeUp 0.8s ease forwards;
+    }
+    .hero-badge::before {
+      content: '';
+      display: inline-block; width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(3.5rem, 8vw, 8rem);
+      line-height: 1;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .hero-title .line1 { display: block; animation: fadeUp 0.9s 0.1s ease both; }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem; color: var(--muted);
+      max-width: 480px; line-height: 1.7;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.9s 0.35s ease both;
+    }
+
+    .hero-buttons {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      animation: fadeUp 0.9s 0.5s ease both;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--bg); border: none;
+      padding: 14px 36px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; text-decoration: none;
+      display: inline-block;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+      transition: all 0.3s;
+      box-shadow: 0 0 30px rgba(0,212,255,0.2);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(0,212,255,0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text); border: 1px solid var(--border);
+      padding: 14px 36px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hero-stats {
+      position: absolute;
+      bottom: 60px; left: 8%;
+      display: flex; gap: 3rem;
+      animation: fadeUp 0.9s 0.7s ease both;
+    }
+    .stat-item { text-align: left; }
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTION HEADER ────────────────────── */
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 4px;
+      color: var(--accent); text-transform: uppercase;
+      display: block; margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      line-height: 1.1;
+    }
+    .section-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-line {
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin: 1.2rem auto 0;
+    }
+
+    /* ─── PRODUITS ───────────────────────────── */
+    #produits {
+      padding: 120px 8%;
+      background: var(--bg2);
+      position: relative;
+    }
+    #produits::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .filters {
+      display: flex; gap: 1rem;
+      justify-content: center; flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.25s;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0,212,255,0.06);
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.4s;
+      cursor: pointer;
+    }
+    .product-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .product-card:hover::before { transform: scaleX(1); }
+    .product-card:hover {
+      border-color: rgba(0,212,255,0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), var(--glow);
+    }
+
+    .card-image {
+      width: 100%; height: 200px;
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .card-image svg {
+      width: 80px; height: 80px;
+      opacity: 0.6;
+      transition: all 0.4s;
+    }
+    .product-card:hover .card-image svg { opacity: 1; transform: scale(1.1); }
+    .card-image::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at center, rgba(0,212,255,0.07) 0%, transparent 70%);
+    }
+
+    .card-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--accent3);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 1px;
+      padding: 3px 10px; font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .card-body { padding: 1.5rem; }
+    .card-cat {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 3px;
+      color: var(--accent); text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .card-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+      line-height: 1.3;
+    }
+    .card-desc {
+      font-size: 0.82rem; color: var(--muted);
+      line-height: 1.6; margin-bottom: 1.2rem;
+    }
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-price {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .card-price span {
+      font-size: 0.7rem; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      display: block; margin-top: 2px;
+    }
+    .card-btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 8px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.3s;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    }
+    .card-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* ─── FEATURES ──────────────────────────── */
+    #features {
+      padding: 100px 8%;
+      background: var(--bg);
+      position: relative;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .feat-card {
+      padding: 2rem 1.5rem;
+      border: 1px solid var(--border);
+      position: relative;
+      transition: all 0.3s;
+      background: var(--card);
+    }
+    .feat-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .feat-card:hover::after { transform: scaleX(1); }
+    .feat-card:hover { border-color: rgba(0,212,255,0.2); }
+
+    .feat-icon {
+      width: 48px; height: 48px;
+      margin-bottom: 1.2rem;
+      color: var(--accent);
+    }
+    .feat-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .feat-text { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── CONTACT ───────────────────────────── */
+    #contact {
+      padding: 120px 8%;
+      background: var(--bg2);
+      position: relative;
+    }
+    #contact::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    }
+
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .contact-info-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem; font-weight: 900;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    .contact-info-desc {
+      color: var(--muted); line-height: 1.7;
+      font-size: 0.9rem; margin-bottom: 2.5rem;
+    }
+
+    .contact-items { display: flex; flex-direction: column; gap: 1.2rem; }
+    .contact-item {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .contact-item-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent);
+    }
+    .contact-item-text { font-size: 0.9rem; }
+    .contact-item-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .contact-form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      position: relative;
+    }
+    .contact-form::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0,212,255,0.1);
+    }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    .form-select { background-color: var(--bg); }
+    .form-select option { background: var(--bg2); }
+
+    .form-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: var(--bg);
+      padding: 16px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+      transition: all 0.3s;
+      margin-top: 1rem;
+    }
+    .form-submit:hover {
+      opacity: 0.9;
+      box-shadow: 0 10px 40px rgba(0,212,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: var(--accent);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+    }
+    .form-success svg { width: 60px; height: 60px; margin: 0 auto 1rem; display: block; }
+
+    /* ─── FOOTER ────────────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 3rem 8%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900; font-size: 1.2rem;
+      letter-spacing: 4px;
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .footer-socials { display: flex; gap: 1rem; }
+    .footer-socials a {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .footer-socials a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ─── TOAST ──────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 14px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 1px;
+      z-index: 9000;
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.4s;
+      box-shadow: var(--glow);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ─── SCROLL INDICATOR ──────────────────── */
+    .scroll-indicator {
+      position: absolute; bottom: 20px;
+      left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      opacity: 0.5;
+    }
+    .scroll-indicator span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 3px; color: var(--muted);
+    }
+    .scroll-mouse {
+      width: 22px; height: 34px;
+      border: 1.5px solid var(--muted);
+      border-radius: 11px;
+      display: flex; justify-content: center; padding-top: 6px;
+    }
+    .scroll-mouse::after {
+      content: '';
+      width: 3px; height: 7px;
+      background: var(--accent);
+      border-radius: 2px;
+      animation: scrollDown 1.5s ease-in-out infinite;
+    }
+    @keyframes scrollDown {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(8px); opacity: 0; }
+    }
+
+    /* ─── RESPONSIVE ────────────────────────── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; flex-direction: column; gap: 0;
+        position: fixed; top: 70px; left: 0; right: 0;
+        background: rgba(5,8,16,0.98);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 0; z-index: 499;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { padding: 1rem 2rem; border-bottom: 1px solid var(--border); }
+      .nav-links a { font-size: 0.9rem; color: var(--text); }
+      .hamburger { display: flex; }
+      .contact-wrapper { grid-template-columns: 1fr; gap: 3rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .hero-stats { position: relative; bottom: auto; left: auto;
+        margin-top: 3rem; flex-wrap: wrap; gap: 2rem; }
+      #accueil { padding-bottom: 80px; }
+    }
+    @media (max-width: 600px) {
+      .hero-title { font-size: 3rem; }
+      nav { padding: 0 4%; }
+      #produits, #contact, #features { padding-left: 4%; padding-right: 4%; }
+    }
+
+    /* ─── REVEAL ANIMATION ──────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ NAVBAR ═══════════════════════════════════════ -->
+  <nav id="navbar">
+    <a href="#accueil" class="logo"><span>FIO</span><span class="accent">TECH</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#accueil">Accueil</a></li>
+      <li><a href="#produits">Produits</a></li>
+      <li><a href="#features">Services</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#contact" class="nav-cta">Devis Gratuit</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ═══ HERO ══════════════════════════════════════════ -->
+  <section id="accueil">
+    <div class="hero-grid"></div>
+    <div class="hero-circle"></div>
+
+    <div class="hero-badge">FIOTECH STORE -- EST. 2024</div>
+
+    <h1 class="hero-title">
+      <span class="line1">EQUIP TON</span>
+      <span class="line2">UNIVERS</span>
+    </h1>
+
+    <p class="hero-sub">
+      Materiel informatique haut de gamme, peripheriques pro et composants selectionnes pour les professionnels et passionnes. Livraison rapide, garantie constructeur.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#produits" class="btn-primary">Voir les Produits</a>
+      <a href="#contact" class="btn-outline">Nous Contacter</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="counter1">0</div>
+        <div class="stat-label">Produits</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="counter2">0</div>
+        <div class="stat-label">Clients Satisfaits</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="counter3">0</div>
+        <div class="stat-label">Marques</div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-mouse"></div>
+      <span>SCROLL</span>
+    </div>
+  </section>
+
+  <!-- ═══ PRODUITS ══════════════════════════════════════ -->
+  <section id="produits">
+    <div class="section-header reveal">
+      <span class="section-tag">// catalogue.produits</span>
+      <h2 class="section-title">Nos <em>Produits</em></h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="filters reveal">
+      <button class="filter-btn active" data-filter="all">Tout</button>
+      <button class="filter-btn" data-filter="ordinateur">Ordinateurs</button>
+      <button class="filter-btn" data-filter="peripherique">Peripheriques</button>
+      <button class="filter-btn" data-filter="reseau">Reseau</button>
+      <button class="filter-btn" data-filter="composant">Composants</button>
+    </div>
+
+    <div class="products-grid" id="productsGrid">
+
+      <div class="product-card reveal" data-cat="ordinateur">
+        <div class="card-image">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="12" width="64" height="42" rx="3" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="14" y="18" width="52" height="30" fill="rgba(0,212,255,0.08)" stroke="#1a2448"/>
+            <line x1="24" y1="54" x2="24" y2="62" stroke="#00d4ff" stroke-width="2"/>
+            <line x1="56" y1="54" x2="56" y2="62" stroke="#00d4ff" stroke-width="2"/>
+            <line x1="18" y1="62" x2="62" y2="62" stroke="#00d4ff" stroke-width="2"/>
+            <circle cx="40" cy="33" r="8" stroke="#7b2fff" stroke-width="1.5"/>
+            <line x1="40" y1="29" x2="40" y2="33" stroke="#7b2fff" stroke-width="1.5"/>
+            <circle cx="40" cy="33" r="2" fill="#7b2fff"/>
+          </svg>
+          <span class="card-badge">Nouveau</span>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">Ordinateur Portable</div>
+          <div class="card-name">ProBook Elite X15</div>
+          <div class="card-desc">Intel Core i7 13e gen, 16GB RAM DDR5, SSD NVMe 512GB, Ecran IPS 15.6" FHD</div>
+          <div class="card-footer">
+            <div class="card-price">850 000 FCFA<span>TVA incluse</span></div>
+            <button class="card-btn" onclick="addToCart('ProBook Elite X15', 850000)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card reveal reveal-delay-1" data-cat="ordinateur">
+        <div class="card-image">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="8" width="60" height="50" rx="2" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="16" y="14" width="48" height="38" fill="rgba(0,212,255,0.05)" stroke="#1a2448"/>
+            <rect x="30" y="58" width="20" height="8" fill="rgba(0,212,255,0.1)" stroke="#1a2448"/>
+            <rect x="22" y="66" width="36" height="3" rx="1" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="0.5"/>
+            <rect x="20" y="20" width="12" height="12" rx="1" stroke="#7b2fff" stroke-width="1.5"/>
+            <rect x="36" y="20" width="20" height="4" rx="0.5" fill="rgba(255,62,108,0.3)" stroke="#ff3e6c" stroke-width="0.5"/>
+            <rect x="36" y="28" width="14" height="3" rx="0.5" fill="rgba(0,212,255,0.2)"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">Desktop PC</div>
+          <div class="card-name">FioStation Pro Tower</div>
+          <div class="card-desc">AMD Ryzen 9 7900X, 32GB RAM, RTX 4070, SSD 1TB + HDD 2TB, Win 11 Pro</div>
+          <div class="card-footer">
+            <div class="card-price">1 450 000 FCFA<span>TVA incluse</span></div>
+            <button class="card-btn" onclick="addToCart('FioStation Pro Tower', 1450000)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card reveal reveal-delay-2" data-cat="peripherique">
+        <div class="card-image">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="12" y="22" width="56" height="36" rx="4" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="18" y="28" width="44" height="24" rx="1" fill="rgba(0,212,255,0.07)" stroke="#1a2448"/>
+            <line x1="40" y1="22" x2="40" y2="18" stroke="#00d4ff" stroke-width="1.5"/>
+            <circle cx="40" cy="16" r="3" stroke="#00d4ff" stroke-width="1.5"/>
+            <rect x="22" y="32" width="6" height="4" rx="0.5" fill="rgba(0,212,255,0.3)"/>
+            <rect x="30" y="32" width="6" height="4" rx="0.5" fill="rgba(123,47,255,0.4)"/>
+            <rect x="38" y="32" width="6" height="4" rx="0.5" fill="rgba(0,212,255,0.3)"/>
+            <rect x="46" y="32" width="6" height="4" rx="0.5" fill="rgba(255,62,108,0.4)"/>
+          </svg>
+          <span class="card-badge">Promo</span>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">Ecran</div>
+          <div class="card-name">FioView 27" 4K HDR</div>
+          <div class="card-desc">Dalle IPS 4K UHD, 144Hz, HDR400, 1ms, compatible USB-C 65W, pied ajustable</div>
+          <div class="card-footer">
+            <div class="card-price">380 000 FCFA<span>TVA incluse</span></div>
+            <button class="card-btn" onclick="addToCart('FioView 27 4K HDR', 380000)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card reveal reveal-delay-3" data-cat="peripherique">
+        <div class="card-image">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="28" width="60" height="24" rx="4" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="16" y="34" width="48" height="12" rx="1" fill="rgba(0,212,255,0.05)" stroke="#1a2448"/>
+            <rect x="20" y="36" width="4" height="4" rx="0.5" fill="rgba(0,212,255,0.4)"/>
+            <rect x="26" y="36" width="4" height="4" rx="0.5" fill="rgba(0,212,255,0.3)"/>
+            <rect x="32" y="36" width="4" height="4" rx="0.5" fill="rgba(123,47,255,0.4)"/>
+            <rect x="38" y="36" width="4" height="4" rx="0.5" fill="rgba(0,212,255,0.3)"/>
+            <rect x="44" y="36" width="4" height="4" rx="0.5" fill="rgba(255,62,108,0.3)"/>
+            <rect x="50" y="36" width="8" height="4" rx="0.5" fill="rgba(0,212,255,0.2)"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">Peripherique</div>
+          <div class="card-name">Pack Clavier + Souris Pro</div>
+          <div class="card-desc">Clavier mecanique RGB TKL, souris 16000 DPI, recepteur USB nano 2.4GHz, sans fil</div>
+          <div class="card-footer">
+            <div class="card-price">95 000 FCFA<span>TVA incluse</span></div>
+            <button class="card-btn" onclick="addToCart('Pack Clavier + Souris Pro', 95000)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card reveal" data-cat="reseau">
+        <div class="card-image">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="18" y="30" width="44" height="22" rx="3" stroke="#00d4ff" stroke-width="2"/>
+            <circle cx="28" cy="41" r="3" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="1"/>
+            <circle cx="40" cy="41" r="3" fill="rgba(123,47,255,0.3)" stroke="#7b2fff" stroke-width="1"/>
+            <circle cx="52" cy="41" r="3" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="1"/>
+            <line x1="40" y1="30" x2="40" y2="22" stroke="#00d4ff" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <path d="M30 18 Q40 12 50 18" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
+            <path d="M34 22 Q40 17 46 22" stroke="#7b2fff" stroke-width="1.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">Reseau</div>
+          <div class="card-name">Routeur WiFi 6E AX6600</div>
+          <div class="card-desc">WiFi 6E tri-bande 6600Mbps, 8 antennes, port 2.5G, controle parental avance</div>
+          <div class="card-footer">
+            <div class="card-price">145 000 FCFA<span>TVA incluse</span></div>
+            <button class="card-btn" onclick="addToCart('Routeur WiFi 6E AX6600', 145000)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card reveal reveal-delay-1" data-cat="composant">
+        <div class="card-image">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="15" y="15" width="50" height="50" rx="2" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="22" y="22" width="36" height="36" rx="1" fill="rgba(123,47,255,0.1)" stroke="#7b2fff" stroke-width="1"/>
+            <rect x="28" y="28" width="24" height="24" rx="1" fill="rgba(0,212,255,0.08)" stroke="#00d4ff" stroke-width="1"/>
+            <line x1="15" y1="28" x2="8" y2="28" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="15" y1="35" x2="8" y2="35" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="15" y1="42" x2="8" y2="42" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="65" y1="28" x2="72" y2="28" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="65" y1="35" x2="72" y2="35" stroke="#00d4ff" stroke-width="1.5"/>
+            <line x1="65" y1="42" x2="72" y2="42" stroke="#00d4ff" stroke-width="1.5"/>
+          </svg>
+          <span class="card-badge">Stock Limité</span>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">Composant</div>
+          <div class="card-name">Processeur AMD Ryzen 9 7950X</div>
+          <div class="card-desc">16 coeurs / 32 threads, jusqu'a 5.7 GHz, AM5, cache L3 64MB, TDP 170W</div>
+          <div class="card-footer">
+            <div class="card-price">620 000 FCFA<span>TVA incluse</span></div>
+            <button class="card-btn" onclick="addToCart('AMD Ryzen 9 7950X', 620000)">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ FEATURES ══════════════════════════════════════ -->
+  <section id="features">
+    <div class="section-header reveal">
+      <span class="section-tag">// nos.services</span>
+      <h2 class="section-title">Pourquoi choisir <em>FIOTECH</em> ?</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <svg class="feat-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 4L44 14V34L24 44L4 34V14L24 4Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 4V44M4 14L44 14M4 34L44 34" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="feat-title">Produits Certifies</div>
+        <div class="feat-text">Tous nos equipements sont authentiques, certifies et couverts par la garantie officielle du fabricant.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <svg class="feat-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="2"/>
+          <path d="M24 14V24L30 30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 8L8 4M36 8L40 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="feat-title">Livraison Express</div>
+        <div class="feat-text">Livraison en 24-48h dans toute la region. Suivi en temps reel de votre commande.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <svg class="feat-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 14H40V38H8V14Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 20H40M16 20V38M32 20V38" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/>
+          <circle cx="24" cy="10" r="4" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <div class="feat-title">Support Technique</div>
+        <div class="feat-text">Equipe technique disponible 6j/7 pour installation, configuration et maintenance de vos equipements.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-3">
+        <svg class="feat-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 4L28 16H42L31 24L35 36L24 28L13 36L17 24L6 16H20L24 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div class="feat-title">Meilleurs Prix</div>
+        <div class="feat-text">Tarifs competitifs et negocie directement avec les distributeurs. Devis personnalise pour les entreprises.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ════════════════════════════════════════ -->
+  <section id="contact">
+    <div class="section-header reveal">
+      <span class="section-tag">// contact.fiotech</span>
+      <h2 class="section-title">Parlez-nous de <em>votre projet</em></h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="contact-wrapper">
+      <div class="reveal">
+        <h3 class="contact-info-title">Votre partenaire tech de confiance</h3>
+        <p class="contact-info-desc">
+          Besoin d'un devis, d'informations sur un produit ou d'un accompagnement technique ? Notre equipe est a votre disposition pour vous aider a trouver les meilleures solutions informatiques.
+        </p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.1 2.18 2 2 0 012.07 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.19 6.19l1.27-.36a2 2 0 012.11.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+            </div>
+            <div class="contact-item-text">
+              <div class="contact-item-label">Telephone</div>
+              <div>+2290152707102</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <div class="contact-item-text">
+              <div class="contact-item-label">Email</div>
+              <div>fioaugustin6@gmail.com</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <div class="contact-item-text">
+              <div class="contact-item-label">Cotonou</div>
+              <div>Votre ville, Votre pays</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="contact-item-text">
+              <div class="contact-item-label">Horaires</div>
+              <div>Lun - Sam : 8h - 20h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form reveal reveal-delay-2" id="contactFormWrapper">
+        <div id="formContent">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="fname">Prenom</label>
+              <input class="form-input" type="text" id="fname" placeholder="Jean" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lname">Nom</label>
+              <input class="form-input" type="text" id="lname" placeholder="Dupont" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" type="email" id="email" placeholder="jean@exemple.com" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Telephone</label>
+            <input class="form-input" type="tel" id="phone" placeholder="+XXX XX XX XX XX"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="subject">Sujet</label>
+            <select class="form-select" id="subject">
+              <option value="">Choisir un sujet...</option>
+              <option value="devis">Demande de devis</option>
+              <option value="info">Information produit</option>
+              <option value="sav">Service apres-vente</option>
+              <option value="partenariat">Partenariat</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea class="form-textarea" id="message" placeholder="Decrivez votre besoin..."></textarea>
+          </div>
+          <a href=" htps://fioaugustin6@gmail.com"></a><button class="form-submit" id="formSubmit" onclick="submitForm()">Envoyer le Message</button></a>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" stroke="currentColor" stroke-width="2"/>
+            <path d="M18 30L26 38L42 22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Message envoye avec succes !<br/>
+          <span style="font-family:'Syne',sans-serif;font-size:0.8rem;color:var(--muted);letter-spacing:0;text-transform:none;">Nous vous repondrons dans les plus brefs delais.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-logo">FIO<span>TECH</span></div>
+    <div class="footer-copy">&copy; 2024 FIOTECH -- Tous droits reserves</div>
+    <div class="footer-socials">
+      <a href="htps://www.facebook.com/Augustin Fio" aria-label="Facebook" title="Facebook">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+        </svg>
+      </a>
+      <a href="htps://wa.me/22952707102" aria-label="Instagram" title="whatsApp">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+        </svg>
+      </a>
+      <a href="htps://fioaugustin6@gmail.com" aria-label="Twitter" title="E-mail">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+        </svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    // ─── CURSOR ────────────────────────────────────────────
+    const cursor = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    function animRing() {
+      rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+      cursorRing.style.left = rx + 'px'; cursorRing.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+    document.querySelectorAll('a,button,.product-card,.feat-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width = '20px'; cursor.style.height = '20px';
+        cursor.style.background = 'var(--accent2)';
+        cursorRing.style.width = '50px'; cursorRing.style.height = '50px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width = '12px'; cursor.style.height = '12px';
+        cursor.style.background = 'var(--accent)';
+        cursorRing.style.width = '36px'; cursorRing.style.height = '36px';
+      });
+    });
+
+    // ─── NAVBAR SCROLL ─────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ─── HAMBURGER ─────────────────────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        navLinks.classList.remove('open');
+      });
+    });
+
+    // ─── REVEAL ON SCROLL ──────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ─── COUNTER ANIMATION ─────────────────────────────────
+    function animCounter(id, end, suffix) {
+      let start = 0;
+      const el = document.getElementById(id);
+      const step = Math.ceil(end / 60);
+      const interval = setInterval(() => {
+        start = Math.min(start + step, end);
+        el.textContent = start + (suffix || '');
+        if (start >= end) clearInterval(interval);
+      }, 30);
+    }
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animCounter('counter1', 500, '+');
+          animCounter('counter2', 1200, '+');
+          animCounter('counter3', 50, '+');
+          counterObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    counterObserver.observe(document.getElementById('accueil'));
+
+    // ─── FILTER PRODUCTS ───────────────────────────────────
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.product-card').forEach(card => {
+          const show = filter === 'all' || card.dataset.cat === filter;
+          card.style.transition = 'opacity 0.4s, transform 0.4s';
+          card.style.opacity = show ? '1' : '0.15';
+          card.style.transform = show ? 'scale(1)' : 'scale(0.95)';
+          card.style.pointerEvents = show ? 'all' : 'none';
+        });
+      });
+    });
+
+    // ─── TOAST ─────────────────────────────────────────────
+    function showToast(msg, duration) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), duration || 3000);
+    }
+
+    // ─── ADD TO CART ───────────────────────────────────────
+    let cart = [];
+    function addToCart(name, price) {
+      cart.push({ name, price });
+      showToast(name + ' ajoute au panier !');
+    }
+
+    // ─── FORM SUBMIT ───────────────────────────────────────
+    function submitForm() {
+      const fname = document.getElementById('fname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if (!fname || !email || !message) {
+        showToast('Veuillez remplir les champs obligatoires.');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Adresse email invalide.');
+        return;
+      }
+      document.getElementById('formContent').style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+      showToast('Message envoye avec succes !', 4000);
+    }
+  </script>
+</body>
+</html>
